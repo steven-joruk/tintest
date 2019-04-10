@@ -1,0 +1,43 @@
+#read {tintest.tt}
+
+tintest_true {!0}
+tintest_true {1}
+tintest_true {!}
+tintest_true {1 == 1}
+tintest_true {a == a}
+
+tintest_equal {1} {1}
+tintest_equal {a} {a}
+tintest_equal {} {}
+tintest_equal {!} {!}
+
+tintest_not_equal {1} {0}
+tintest_not_equal {a} {b}
+tintest_not_equal {} {0}
+tintest_not_equal {!} {0}
+
+tintest_input_causes_action_call {You are hungry.} {^You are %1.$}
+
+#act {^You are hungry.$} {handle_hunger}
+tintest_input_causes_alias_call {You are hungry.} {handle_hunger}
+
+#alias {handle_death} {loot_everything;destoy_corpses}
+tintest_alias_is_called {handle_death} {loot_everything}
+
+#list players add John
+#list players add Emma
+tintest_list_contains {players} {John}
+tintest_list_does_not_contain {players} {Terry}
+
+#list players2 add John
+#list players2 add Emma
+tintest_list_matches players players2
+
+#list players2 delete 1
+tintest_list_matches players players2
+
+#list players3 add John
+#list players3 add Craig
+tintest_list_matches players players3
+
+tintest_exit_without_code

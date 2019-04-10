@@ -1,0 +1,95 @@
+#alias {TT_report} {
+    #if {%1} {
+        #showme {<129>PASS <099>%2};
+    } {
+        #showme {<119>FAIL <099>%2};
+    }
+}
+
+#alias {tintest_true} {
+    TT_report {%1} {true %0}
+}
+
+#alias {tintest_false} {
+    TT_report {!%1} {false %0}
+}
+
+#alias {tintest_equal} {
+    TT_report {"%1" == "%2"} {equal {%1} {%2}}
+}
+
+#alias {tintest_not_equal} {
+    TT_report {"%1" != "%2"} {not_equal {%1} {%2}}
+}
+
+#alias {tintest_input_causes_action_call} {
+    #unvar TT_action_matched;
+    #act {%2} {#var TT_action_matched 1};
+    #gag %!*;
+    #showme %1;
+    #ungag %!*;
+    TT_report {$TT_action_matched} {input_causes_action_call {%1} {%2}};
+    #unact {%2}
+}
+
+#alias {tintest_input_causes_alias_call} {
+    #unvar TT_alias_was_called;
+    #alias {%2} {#var TT_alias_was_called 1};
+    #gag %!*;
+    #showme {%1};
+    #ungag %!*;
+    TT_report {$TT_alias_was_called} {input_causes_alias_call {%1} {%2}};
+    #unalias {%2}
+}
+
+#alias {tintest_alias_is_called} {
+    #unvar TT_alias_was_called;
+    #alias {%2} {#var TT_alias_was_called 1};
+    #gag %!*;
+    %1;
+    #ungag %!*;
+    TT_report {$TT_alias_was_called} {alias_is_called {%1} {%2}};
+    #unalias {%2}
+}
+
+#alias {tintest_list_contains} {
+    #local TT_item;
+    #list {%1} {find} {%2} {TT_item};
+    TT_report {$TT_item != 0} {list_contains {%1} {%2}}
+}
+
+#alias {tintest_list_does_not_contain} {
+    #local TT_item;
+    #list {%1} {find} {%2} {TT_item};
+    TT_report {$TT_item == 0} {list_does_not_contain {%1} {%2}}
+}
+
+#alias {tintest_list_matches} {
+    #local left_size;
+    #local right_size;
+    #list %1 size left_size;
+    #list %2 size right_size;
+    #if {$left_size != $right_size} {
+        TT_report {0} {list_matches {%1} {%2}}
+    } {
+        #local i 0;
+        #local left;
+        #local right;
+        #local not_equal 0;
+        #while {$i < $left_size} {
+            #math i {$i + 1};
+            #list %1 get $i left;
+            #list %2 get $i right;
+            #if {"$left" != "$right"} {
+                TT_report {0} {list_matches {%1} {%2}}
+                #var not_equal 1;
+                #return;
+            }
+        };
+        TT_report {$not_equal == 0} {list_matches {%1} {%2}}
+    }
+}
+
+#alias {tintest_exit_without_code} {
+    #zap
+}
